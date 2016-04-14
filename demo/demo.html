@@ -222,7 +222,7 @@ app.factory('uiSliderConfig', function ($log) {
 		<li>
 			<div class="sliderExample"><a name="ex16"></a>
 				<strong>Slider - trigger update on both slidestop & slide events</strong>
-				<div ui-slider="{updateOn: 'slidestop slide'}" min="0" max="100" g-model="demoVals.sliderExample16"></div>
+				<div ui-slider="{updateOn: 'slidestop slide'}" min="0" max="100" ng-model="demoVals.sliderExample16"></div>
 				<input type="text" ng-model="demoVals.sliderExample16" />
 			</div>
 		</li>
@@ -285,7 +285,7 @@ app.factory('uiSliderConfig', function ($log) {
 				sliderExample10:     -0.37,
 				sliderExample14a:	50,
 				sliderExample14b:	50,
-				sliderExample15:	[30, 60]
+				sliderExample15:	[30, 60],
 				sliderExample16:	50
 			};
 
