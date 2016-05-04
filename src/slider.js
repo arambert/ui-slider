@@ -23,6 +23,7 @@ angular.module('ui.slider', []).value('uiSliderConfig',{}).directive('uiSlider',
                 // convenience properties
                 var properties = ['min', 'max', 'step', 'lowerBound', 'upperBound'];
                 var useDecimals = (!angular.isUndefined(attrs.useDecimals)) ? true : false;
+                var updateOn = (angular.isDefined(options['updateOn'])) ? options['updateOn'] : 'slide'
 
                 var init = function() {
                     // When ngModel is assigned an array of values then range is expected to be true.
@@ -75,7 +76,7 @@ angular.module('ui.slider', []).value('uiSliderConfig',{}).directive('uiSlider',
                 $timeout(init, 0, true);
 
                 // Update model value from slider
-                elm.bind('slide', function(event, ui) {
+                elm.bind(updateOn, function(event, ui) {
                     var valuesChanged;
 
                     if (ui.values) {
@@ -110,6 +111,7 @@ angular.module('ui.slider', []).value('uiSliderConfig',{}).directive('uiSlider',
 
 
                     ngModel.$setViewValue(ui.values || ui.value);
+                    $(ui.handle).find('.ui-slider-tip').text(ui.value);
                     scope.$apply();
 
                     if (valuesChanged) {
@@ -125,7 +127,7 @@ angular.module('ui.slider', []).value('uiSliderConfig',{}).directive('uiSlider',
                 ngModel.$render = function() {
                     init();
                     var method = options.range === true ? 'values' : 'value';
-                    
+
                     if (options.range !== true && isNaN(ngModel.$viewValue) && !(ngModel.$viewValue instanceof Array)) {
                         ngModel.$viewValue = 0;
                     }
@@ -136,7 +138,7 @@ angular.module('ui.slider', []).value('uiSliderConfig',{}).directive('uiSlider',
                     // Do some sanity check of range values
                     if (options.range === true) {
                         // previously, the model was a string b/c it was in a text input, need to convert to a array.
-                        // make sure input exists, comma exists once, and it is a string. 
+                        // make sure input exists, comma exists once, and it is a string.
                         if (ngModel.$viewValue && angular.isString(ngModel.$viewValue) && (ngModel.$viewValue.match(/,/g) || []).length === 1) {
                             // transform string model into array.
                             var valueArr = ngModel.$viewValue.split(',');
@@ -190,18 +192,21 @@ angular.module('ui.slider', []).value('uiSliderConfig',{}).directive('uiSlider',
                 // Add tick marks if 'tick' and 'step' attributes have been setted on element.
                 // Support horizontal slider bar so far. 'tick' and 'step' attributes are required.
                 var options = angular.extend({}, scope.$eval(attrs.uiSlider));
-                var properties = ['max', 'step', 'tick'];
+                var properties = ['min', 'max', 'step', 'tick', 'tip'];
                 angular.forEach(properties, function(property) {
                     if (angular.isDefined(attrs[property])) {
                         options[property] = attrs[property];
                     }
                 });
                 if (angular.isDefined(options['tick']) && angular.isDefined(options['step'])) {
-                    var total = parseInt(parseInt(options['max'])/parseInt(options['step']));
+                    var total = parseInt( (parseInt(options['max']) - parseInt(options['min'])) /parseInt(options['step']));
                     for (var i = total; i >= 0; i--) {
                         var left = ((i / total) * 100) + '%';
                         $("<div/>").addClass("ui-slider-tick").appendTo(element).css({left: left});
                     };
+                }
+                if(angular.isDefined(options['tip'])) {
+                    $timeout(function(){element.find('.ui-slider-handle').append('<div class="ui-slider-tip">'+ngModel.$viewValue+'</div>')},10);
                 }
             }
 
